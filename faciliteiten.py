@@ -81,7 +81,8 @@ cur.execute(create_script4)
 cur.execute( """INSERT INTO moderator (naam, email, wachtwoord)
                 VALUES('Muhsin Kan', 'muhsinkan61@hotmail.com', '0000')""")
 
-# Ik gebruik een drop table, want dan komt er geen dubbele data in onze datbase, want als het de programma runt de hele tijd komt er dubbele gegevens erin.
+
+
 
 def insert_statements():
     stations = [('Utrecht'), ('Amsterdam'), ('Den Haag')]
@@ -93,8 +94,8 @@ def insert_statements():
         cur.execute("INSERT INTO service(naam) VALUES (%s)", (namen,))
 
     voorzieningen_script = "INSERT INTO  voorziening(fk_station_id,fk_service_id,aantal) VALUES (%s,%s,%s)"
-    voorzieningen_values = [(1, 2, 5), (1, 1, 15), (1, 3, 20), (1, 4, 210),  (2, 4, 200), (2, 3, 10), (2, 1, 30), (2, 2, 0),
-                            (3, 2, 4), (3, 3, 18), (3, 1, 10), (3, 4, 0)]
+    voorzieningen_values = [(1, 2, 5), (1, 1, 15), (1, 3, 20), (1, 4, 210), (2, 2, 0), (2, 1, 30), (2, 3, 10), (2, 4, 200),
+                            (3, 2, 4), (3, 1, 10), (3, 3, 18), (3, 4, 0)]
     for voorzieningen in voorzieningen_values:
         cur.execute(voorzieningen_script, voorzieningen)
 

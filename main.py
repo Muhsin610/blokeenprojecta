@@ -50,7 +50,7 @@ def lees_naam():
         return "anoniem"
 
 
-# Functie gemaakt om connectie met SQL te closen
+# Functie gemaakt om connectie met SQL in 1x te closen aan het eind
 def exit_handler():
     conn.close()
     print('Connection has been closed!')
@@ -91,19 +91,19 @@ def login():
 
     def ingelogd():
         # Als je bent ingelogd controleert het of je gebruikersnaam en wachtwoord met de variabele naam en wachtwoord hieronder overeenkomen en vervolgens krijg je dan de moderatorpagina te zien waar je berichten kunt toelaten of verwijderen
-        naam = 'ewa'
+        naam = 'muhsin.kan@student.hu.nl'
         wachtwoord = '0000'
         if gebruikersnaam.get() == naam and parola.get() == wachtwoord:
-            # Hier krijg je een nieuwe window, de moderatorspagina, hier kun je berichten toelaten of weigeren
+            # Hier krijg je een nieuwe window, de moderatorspagina, hier kun je berichten goed- of afkeuren
             root = Tk()
+            root.state('zoomed')
             root.title("~Moderator pagina~")
             root.geometry("1250x350")
             root.configure(bg="blue")
 
             style = tkinter.ttk.Style(root)
-            # set ttk theme to "clam" which support the fieldbackground option
             style.theme_use("clam")
-            style.configure("Treeview", background="blue",
+            style.configure("Treeview", background="white",
                             fieldbackground="yellow", foreground="black")
 
             def update(rows):
@@ -112,8 +112,8 @@ def login():
 
             cur = conn.cursor()
             # Treeview wordt aangemaakt om de gegevens daarin toe te voegen, je kan het zien als een soort lijst met gegevens erin
-            trv = ttk.Treeview(root, selectmode='browse')
-            trv.grid(row=1, column=1, pady=20, padx=20)
+            trv = ttk.Treeview(root, selectmode='browse', height=20)
+            trv.pack(pady=100)
             trv["columns"] = ("1", "2", "3")
             trv["show"] = 'headings'
             trv.column("1", width=100, anchor='c')
@@ -130,6 +130,7 @@ def login():
                 # Hier wordt het stationshalscherm getoond, met recente tijd, live weer,datum, faciliteiten en 5 laatste berichten met de namen
                 root = Tk()
                 root.title("~~Stationshalscherm~~")
+                root.state('zoomed')
 
                 root.configure(bg= 'blue')
 
@@ -141,6 +142,7 @@ def login():
                 api_key = 'e3ab4f9f02395b08dbf8c125f322443f'
 
                 def getweather(api_key, city):
+                    #Je krijgt de live weer met behulp van te verbonden zijn met het api key van het weerapplicatie
                     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
 
                     response = requests.get(url).json()
@@ -167,6 +169,7 @@ def login():
                 display_stats(weather, temp)
 
                 def klok1():
+                    #We maken voor de label een recente tijd aan, zo kan dat getoond worden op het scherm
                     hour = time.strftime("%H")
                     minute = time.strftime("%M")
                     second = time.strftime("%S")
@@ -175,6 +178,7 @@ def login():
                     tijd.after(1000, klok1)
 
                 def tarih1():
+                    #Zelfde net als hierboven maar dan in datum
                     datum = time.strftime("%A %d %B %Y")
 
                     myDate.config(text=datum)
@@ -190,9 +194,8 @@ def login():
                 tarih1()
 
                 style = tkinter.ttk.Style(root)
-                # set ttk theme to "clam" which support the fieldbackground option
                 style.theme_use("clam")
-                style.configure("Treeview", background="blue",
+                style.configure("Treeview", background="white",
                                 fieldbackground="yellow", foreground="black")
 
                 trv = ttk.Treeview(root, selectmode='browse', height=8)
@@ -212,9 +215,11 @@ def login():
                 update(rows)
                 conn.commit()
 
-                def voorzieningen():
+                def faciliteiten():
 
                     ### Utrecht faciliteiten ###
+
+                    #Hier selecteren we gegevens van onze database zodat we informatie kunnen laten zien over de facilitieiten op het stationshalscherm.
 
                     cur.execute("""select naam from station where id = 1""")
                     rows = cur.fetchall()
@@ -310,7 +315,7 @@ def login():
                         select_script14_label = Label(root, text=f'Er zijn zoveel Park and Ride: {r}', bg= "blue", fg="white", font=("Helvetica", 10))
                         select_script14_label.grid(row=10, column=2)
 
-                voorzieningen()
+                faciliteiten()
                 root.mainloop()
 
             def doorgeven(trv):
@@ -339,7 +344,7 @@ def login():
                 conn.commit()
             def delete(trv):
 
-                # Als de moderator op verwijderen klikt dan wordt de bericht_id verwijdert uit de database en wordt dus ook gelijk de naam en de bericht zelf verwijdert
+                # Als de moderator op verwijderen klikt dan wordt de bericht_id verwijdert uit de database
 
                 selectedItem = trv.selection()[0]
                 uid=trv.item(selectedItem)['values'][0]
@@ -360,11 +365,11 @@ def login():
 
             # Hier kan je aangeven met entry's en knoppen welke gegevens je wilt wijzigen, verwijderen, goedkeuren of afkeuren
             buttonAfgekeurd = Button(root, text="Afgekeurd", bg="red", command=lambda: delete(trv))
-            buttonAfgekeurd.place(x=500, y=260)
+            buttonAfgekeurd.place(x=700, y=560)
             buttonGoedGekeurd = Button(root, text="Goed keuren", bg="green", command=lambda: doorgeven(trv))
-            buttonGoedGekeurd.place(x=600, y=260)
+            buttonGoedGekeurd.place(x=800, y=560)
             gui = Button(root, text="Stationshalscherm", command=stationshalscherm, bg="yellow")
-            gui.place(x=525, y=300)
+            gui.place(x=725, y=600)
             rows = cur.fetchall()
             update(rows)
             conn.commit()
@@ -410,7 +415,8 @@ def tarih():
 # Mensen kunnen bij deze applicatie/window hun feedback invoeren.
 root = Tk()
 root.title(f"~~Geef uw mening over station: {rand}~~")
-root.geometry('1500x800')
+
+root.state('zoomed')
 
 bg = PhotoImage(file="img.png")
 bg = bg.zoom(2)
