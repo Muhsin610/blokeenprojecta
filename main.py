@@ -122,7 +122,7 @@ def login():
             trv.heading("1", text="ID")
             trv.heading("2", text="naam")
             trv.heading("3", text="bericht")
-            query = """SELECT bericht_id, naam, tekst  FROM moderatorBericht order by bericht_id """
+            query = """SELECT moderatorBericht_id, naam, tekst  FROM moderatorBericht order by moderatorBericht_id """
             cur.execute(query)
 
 
@@ -212,7 +212,7 @@ def login():
                 trv.heading("2", text="naam")
                 trv.heading("3", text="Station")
                 # Hier wordt laatste 5 berichten geselecteerd
-                query0 = """select tekst, naam, stationNaam from guiBericht where goedOfAfgekeurd='goed gekeurd' order by bericht_id desc limit 5"""
+                query0 = """select tekst, naam, stationNaam from guiBericht where goedOfAfgekeurd='goed gekeurd' order by guiBericht_id desc limit 5"""
                 cur.execute(query0)
                 rows = cur.fetchall()
                 update(rows)
@@ -330,13 +330,13 @@ def login():
 
                 uid = trv.item(selectedItem)['values'][0]
 
-                query5 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'goed gekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
-                query6 = """select * from modertaorBericht;
+                query5 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'goed gekeurd', tijdBeoordeling = '{current_time}' WHERE moderatorBericht_id=%s"""
+                query6 = """select * from moderatorBericht;
                             select * from guiBericht;
                             insert into guiBericht
-                            select bericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
-                            from moderatorBericht where moderatorBericht.bericht_id=%s"""
-                query7 = """DELETE FROM moderatorBericht WHERE bericht_id=%s"""
+                            select moderatorBericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
+                            from moderatorBericht where moderatorBericht.moderatorBericht_id=%s"""
+                query7 = """DELETE FROM moderatorBericht WHERE moderatorBericht_id=%s"""
 
                 sel_data = (uid,)
                 cur.execute(str(query5), sel_data)
@@ -358,13 +358,13 @@ def login():
 
                 uid=trv.item(selectedItem)['values'][0]
 
-                query8 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'afgekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
+                query8 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'afgekeurd', tijdBeoordeling = '{current_time}' WHERE moderatorBericht_id=%s"""
                 query9 = """select * from moderatorBericht;
                             select * from guiBericht;
                             insert into guiBericht
-                            select bericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
-                            from moderatorBericht where moderatorBericht.bericht_id=%s"""
-                query10 = """DELETE FROM moderatorBericht WHERE bericht_id=%s"""
+                            select moderatorBericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
+                            from moderatorBericht where moderatorBericht.moderatorBericht_id=%s"""
+                query10 = """DELETE FROM moderatorBericht WHERE moderatorBericht_id=%s"""
 
                 sel_data=(uid,)
                 cur.execute(str(query8), sel_data)
@@ -374,12 +374,12 @@ def login():
                 trv.delete(selectedItem)
 
             # Hier kan je aangeven met entry's en knoppen welke gegevens je wilt wijzigen, verwijderen, goedkeuren of afkeuren
-            buttonAfgekeurd = Button(root, text="Afgekeurd", bg="red", command=lambda: delete(trv))
-            buttonAfgekeurd.place(x=700, y=560)
-            buttonGoedGekeurd = Button(root, text="Goed keuren", bg="green", command=lambda: doorgeven(trv))
+            buttonAfgekeurd = Button(root, text="Afkeuren", fg='white', bg="red", command=lambda: delete(trv), font=('helevtica', 12))
+            buttonAfgekeurd.place(x=650, y=560)
+            buttonGoedGekeurd = Button(root, text="Goed keuren", fg='white', bg="green", command=lambda: doorgeven(trv), font=('helevtica', 12))
             buttonGoedGekeurd.place(x=800, y=560)
-            gui = Button(root, text="Stationshalscherm", command=stationshalscherm, bg="yellow")
-            gui.place(x=725, y=600)
+            gui = Button(root, text="Stationshalscherm", command=stationshalscherm, bg="yellow", font=('helevtica', 12))
+            gui.place(x=700, y=600)
             rows = cur.fetchall()
             update(rows)
             conn.commit()
@@ -478,7 +478,7 @@ naam = Entry(master=root, width=20, bg="yellow", justify=CENTER, font=("Helvetic
 naam.pack(padx=10, pady=10)
 naam.get()
 
-button = Button(master=root, text='Verzenden', command=verzenden, bg="yellow")
+button = Button(master=root, text='Verzenden', command=verzenden, bg="yellow", font=('helvetica', 12))
 button.pack(pady=10)
 #
 login()

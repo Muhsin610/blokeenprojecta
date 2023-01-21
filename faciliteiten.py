@@ -37,7 +37,7 @@ create_script0 = """ CREATE TABLE if not exists station (
                             naam varchar(255) not null
                             )"""
 create_script1 = """ CREATE TABLE if not exists moderatorBericht (
-                            bericht_id serial primary key,
+                            moderatorBericht_id serial primary key,
                             naam varchar(255) null,
                             tekst varchar(255) null,
                             datum date not null,
@@ -48,7 +48,7 @@ create_script1 = """ CREATE TABLE if not exists moderatorBericht (
                             )"""
 
 create_script2 = """ CREATE TABLE if not exists guiBericht (
-                            bericht_id integer,
+                            guiBericht_id integer,
                             naam varchar(255) null,
                             tekst varchar(255) null,
                             datum date not null,
