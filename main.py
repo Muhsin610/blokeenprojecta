@@ -42,25 +42,26 @@ stations = ["Utrecht", "Amsterdam", "Den Haag"]
 rand = random.choice(stations)
 
 
-# Als er geen naam wordt ingevoerd, wordt er 'anoniem' meegegeven als naam.
+
 def lees_naam():
+    # Als er geen naam wordt ingevoerd, wordt er 'anoniem' meegegeven als naam naar de database.
     if naam.get():
         return naam.get()
     else:
         return "anoniem"
 
 
-# Functie gemaakt om connectie met SQL in 1x te closen aan het eind
 def exit_handler():
+    # Functie gemaakt om connectie met SQL in 1x te closen aan het eind, want als ik dit functie niet gebruik krijg ik een error dat de cursor al is afgesloten.
     conn.close()
     print('Connection has been closed!')
 
 
 def verzenden():
-    # Je krijgt een aparte bericht met dat je bericht is verzonden en in behandeling is.
+    # Je krijgt met een messagebox te zien dat je bericht is verzonden en in behandeling is.
     messagebox.showinfo("Hallo " + lees_naam(), "Uw feedback is in behandeling.")
-    # Nadat je op verzenden heb geklikt word je bericht en je naam in de database toegevoegd
-    cur.execute("""INSERT INTO bericht(naam,  tekst, datum, tijd, stationNaam) VALUES(%s, %s, %s, %s, %s)""",
+    # Nadat je op verzenden heb geklikt word je bericht en je naam in de database toegevoegd, met de recente tijd, datum en station.
+    cur.execute("""INSERT INTO moderatorBericht(naam,  tekst, datum, tijd, stationNaam) VALUES(%s, %s, %s, %s, %s)""",
                 (lees_naam(), feedback.get('1.0', 'end-1c'), now, now, rand))
     conn.commit()
     naam.delete(0, END)
@@ -90,7 +91,8 @@ def login():
     parola.get()
 
     def ingelogd():
-        # Als je bent ingelogd controleert het of je gebruikersnaam en wachtwoord met de variabele naam en wachtwoord hieronder overeenkomen en vervolgens krijg je dan de moderatorpagina te zien waar je berichten kunt toelaten of verwijderen
+        # Als je bent ingelogd controleert pyhton met een if-statement of je gebruikersnaam en wachtwoord met de variabele 'naam' en 'wachtwoord'
+        # overeenkomen en vervolgens krijg je dan de moderatorpagina te zien waar je berichten kunt toelaten of verwijderen
         naam = 'muhsin.kan@student.hu.nl'
         wachtwoord = '0000'
         if gebruikersnaam.get() == naam and parola.get() == wachtwoord:
@@ -100,18 +102,16 @@ def login():
             root.title("~Moderator pagina~")
             root.geometry("1250x350")
             root.configure(bg="blue")
-
-            style = tkinter.ttk.Style(root)
-            style.theme_use("clam")
-            style.configure("Treeview", background="white",
-                            fieldbackground="yellow", foreground="black")
-
             def update(rows):
                 for i in rows:
                     trv.insert('', 'end', values=i)
 
             cur = conn.cursor()
             # Treeview wordt aangemaakt om de gegevens daarin toe te voegen, je kan het zien als een soort lijst met gegevens erin
+            style = tkinter.ttk.Style(root)
+            style.theme_use("clam")
+            style.configure("Treeview", background="white",
+                            fieldbackground="yellow", foreground="black")
             trv = ttk.Treeview(root, selectmode='browse', height=20)
             trv.pack(pady=100)
             trv["columns"] = ("1", "2", "3")
@@ -122,7 +122,7 @@ def login():
             trv.heading("1", text="ID")
             trv.heading("2", text="naam")
             trv.heading("3", text="bericht")
-            query = """SELECT bericht_id, naam, tekst  FROM bericht order by bericht_id """
+            query = """SELECT bericht_id, naam, tekst  FROM moderatorBericht order by bericht_id """
             cur.execute(query)
 
 
@@ -155,11 +155,13 @@ def login():
                 weather = getweather(api_key, cityname)
 
                 def display_city_name(city):
+                    #Hier wordt de cityname van het weer getoond op de applicatie
                     city_label = Label(root, text=f"{cityname}", bg= "blue", fg="white")
                     city_label.config(font=("Consolas", 28))
                     city_label.grid(row=1, column=1)
 
                 def display_stats(weather, temp):
+                    # Hier wordt de temperatuur van het weer getoond op de applicatie
                     temp = Label(root, text=f"Temperatuur: {temp} C", bg= "blue", fg="white")
                     temp.config(font=("Consolas", 22))
                     temp.grid(row=2, column=1)
@@ -178,7 +180,7 @@ def login():
                     tijd.after(1000, klok1)
 
                 def tarih1():
-                    #Zelfde net als hierboven maar dan in datum
+                    #We maken voor de label een recente datum aan, zo kan dat getoond worden op het scherm
                     datum = time.strftime("%A %d %B %Y")
 
                     myDate.config(text=datum)
@@ -193,6 +195,7 @@ def login():
                 klok1()
                 tarih1()
 
+                # Dit is een treeview waar de laatste 5 berichten erop worden getoond.
                 style = tkinter.ttk.Style(root)
                 style.theme_use("clam")
                 style.configure("Treeview", background="white",
@@ -209,18 +212,16 @@ def login():
                 trv.heading("2", text="naam")
                 trv.heading("3", text="Station")
                 # Hier wordt laatste 5 berichten geselecteerd
-                query0 = """select tekst, naam, stationNaam from alleBericht where goedOfAfgekeurd='goed gekeurd' order by bericht_id desc limit 5"""
+                query0 = """select tekst, naam, stationNaam from guiBericht where goedOfAfgekeurd='goed gekeurd' order by bericht_id desc limit 5"""
                 cur.execute(query0)
                 rows = cur.fetchall()
                 update(rows)
                 conn.commit()
 
                 def faciliteiten():
+                    # Hier selecteren we gegevens van onze database zodat we informatie kunnen laten zien over de facilitieiten op het stationshalscherm.
 
                     ### Utrecht faciliteiten ###
-
-                    #Hier selecteren we gegevens van onze database zodat we informatie kunnen laten zien over de facilitieiten op het stationshalscherm.
-
                     cur.execute("""select naam from station where id = 1""")
                     rows = cur.fetchall()
                     for r in rows[0]:
@@ -320,18 +321,22 @@ def login():
 
             def doorgeven(trv):
                 # Hier wordt doorgegeven dat een bericht is goed gekeurd
+                # Ik voeg als eerst in het bericht toe dat het is goed gekeurd bij regel 330 variabele 'query5'
+                # Vervolgens maak ik een clone aan van het geselecteerde bericht en stuur ik dezelfde gegevens door naar de guiBericht wat de gebruikers krijgen te zien bij variabele 'query 6'
+                # Bij variabele 'query 7' delete ik hem van de de database tabel: moderatorBericht, want het bericht is al beoordeelt.
 
+                # Met het variabele 'selectedItem' maak je mogelijk om in een treeview berichten met een klik te verwijderen of goed te keuren.
                 selectedItem = trv.selection()[0]
 
-
                 uid = trv.item(selectedItem)['values'][0]
-                query5 = f"""UPDATE bericht SET goedOfAfgekeurd = 'goed gekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
-                query6 = """select * from bericht;
-                                            select * from alleBericht;
-                                            insert into alleBericht
-                                            select bericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
-                                            from bericht where bericht.bericht_id=%s"""
-                query7 = """DELETE FROM bericht WHERE bericht_id=%s"""
+
+                query5 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'goed gekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
+                query6 = """select * from modertaorBericht;
+                            select * from guiBericht;
+                            insert into guiBericht
+                            select bericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
+                            from moderatorBericht where moderatorBericht.bericht_id=%s"""
+                query7 = """DELETE FROM moderatorBericht WHERE bericht_id=%s"""
 
                 sel_data = (uid,)
                 cur.execute(str(query5), sel_data)
@@ -343,18 +348,23 @@ def login():
 
                 conn.commit()
             def delete(trv):
+                # Hier wordt doorgegeven dat een bericht is afgekeurd
+                # Ik voeg als eerst in het bericht toe dat het is afgekeurd bij regel 356 variabele 'query8'
+                # Vervolgens maak ik een clone aan van het geselecteerde bericht en stuur ik dezelfde gegevens door naar de guiBericht wat de gebruikers krijgen te zien bij variabele 'query 9'
+                # Bij variabele 'query 10' delete ik hem van de de database tabel: moderatorBericht, want het bericht is al beoordeelt.
 
-                # Als de moderator op verwijderen klikt dan wordt de bericht_id verwijdert uit de database
-
+                # Met het variabele 'selectedItem' maak je mogelijk om in een treeview berichten met een klik te verwijderen of goed te keuren.
                 selectedItem = trv.selection()[0]
+
                 uid=trv.item(selectedItem)['values'][0]
-                query8 = f"""UPDATE bericht SET goedOfAfgekeurd = 'afgekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
-                query9 = """select * from bericht;
-                            select * from alleBericht;
-                            insert into alleBericht
+
+                query8 = f"""UPDATE moderatorBericht SET goedOfAfgekeurd = 'afgekeurd', tijdBeoordeling = '{current_time}' WHERE bericht_id=%s"""
+                query9 = """select * from moderatorBericht;
+                            select * from guiBericht;
+                            insert into guiBericht
                             select bericht_id, naam, tekst, datum, tijd, goedOfAfgekeurd, tijdBeoordeling, stationNaam
-                            from bericht where bericht.bericht_id=%s"""
-                query10 = """DELETE FROM bericht WHERE bericht_id=%s"""
+                            from moderatorBericht where moderatorBericht.bericht_id=%s"""
+                query10 = """DELETE FROM moderatorBericht WHERE bericht_id=%s"""
 
                 sel_data=(uid,)
                 cur.execute(str(query8), sel_data)
@@ -387,7 +397,7 @@ def login():
         else:
             parola.config(show="*")
 
-    # Je kun het vinkje 'show password' aanvinken en je wachtwoord zien in letters en cijfers
+    # Je kun het vinkje 'show password' aanvinken en je wachtwoord zien in letters of cijfers
     vinkje = Checkbutton(root, text="show password", command=showPassword, bg="yellow")
     vinkje.place(x=260, y=107)
     inloggen = Button(master=root, text="inloggen", command=ingelogd, bg="yellow")

@@ -1,6 +1,10 @@
 import psycopg2
 import atexit
 
+######
+##Dit file hoef je maar 1x te runnen.
+#####
+
 hostname = 'localhost'
 database = 'projectA'
 username = 'postgres'
@@ -14,7 +18,10 @@ conn = psycopg2.connect(
     port=port_id)
 cur = conn.cursor()
 
+
 def exit_handler():
+    # Functie gemaakt om connectie met SQL in 1x te closen aan het eind, want als ik dit functie niet
+    # gebruik krijg ik een error dat de cursor al is afgesloten.
     conn.close()
     print('Connection has been closed!')
 
@@ -29,7 +36,7 @@ create_script0 = """ CREATE TABLE if not exists station (
                             id serial primary key,
                             naam varchar(255) not null
                             )"""
-create_script1 = """ CREATE TABLE if not exists bericht (
+create_script1 = """ CREATE TABLE if not exists moderatorBericht (
                             bericht_id serial primary key,
                             naam varchar(255) null,
                             tekst varchar(255) null,
@@ -40,7 +47,7 @@ create_script1 = """ CREATE TABLE if not exists bericht (
                             stationNaam varchar(255) not null
                             )"""
 
-create_script2 = """ CREATE TABLE if not exists alleBericht (
+create_script2 = """ CREATE TABLE if not exists guiBericht (
                             bericht_id integer,
                             naam varchar(255) null,
                             tekst varchar(255) null,
@@ -77,7 +84,7 @@ cur.execute(create_script2)
 cur.execute(create_script3)
 cur.execute(create_script4)
 
-
+#Hier insert ik de gegevens van de moderator
 cur.execute( """INSERT INTO moderator (naam, email, wachtwoord)
                 VALUES('Muhsin Kan', 'muhsinkan61@hotmail.com', '0000')""")
 
@@ -85,6 +92,7 @@ cur.execute( """INSERT INTO moderator (naam, email, wachtwoord)
 
 
 def insert_statements():
+    # Hier voegen we data toe in onze database. Voor stationnamen en de faciliteiten/voorzieningen
     stations = [('Utrecht'), ('Amsterdam'), ('Den Haag')]
     for station in stations:
         cur.execute("INSERT INTO station(naam) VALUES (%s)", (station,))
